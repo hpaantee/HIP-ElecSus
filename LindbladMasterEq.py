@@ -321,50 +321,16 @@ class atomicSystem:
             self.transit_time = self.p_dict['Gammat'] * 1e6
 
         self.slices = [slice(self.n[0:i].sum(), self.n[0:i+1].sum()) for i in range(self.n_states)]
-        # DME = np.sqrt((2*self.states[0].j+1) / (2*self.states[1].j+1)) \
-        #     * self.atom.getReducedMatrixElementJ_asymmetric(*self.states[0]('nlj'), *self.states[1]('nlj')) \
-        #     * c.e * c.physical_constants['Bohr radius'][0]
-        # g = c.e * c.physical_constants['Bohr radius'][0]
 
-        # See PhD thesis of Zentile, wigner 3-j symbol is 1/sqrt(3) for all combinations of q, ml,ml'
+        # See PhD thesis of Zentile, wigner 3-j symbol is 1/sqrt(3) for all combinations of q, ml,ml' (D1+D2)
         DME = self.atom.getRadialMatrixElement(*self.states[0]('nlj'), *self.states[1]('nlj')) \
             * c.e * c.physical_constants['Bohr radius'][0] * np.sqrt(1/3)
 
         self.naturalLineWidth = [self.atom.getTransitionRate(
             *self.states[i+1]('nlj'), *self.states[i]('nlj')) / 2 / c.pi * 1e-6
             for i in range(self.n_states-1)]
-        # SFF = [self.getSFF(self.states[i].F(self.sublevels[i]),
-        #                    self.states[i+1].F(self.sublevels[i+1]))
-        #        for i in range(self.n_states-1)]
-        # self.dipole_moments = [np.sqrt(SFF[i]/3) * DME[i]
-        #                        for i in range(self.n_states-1)]
+
         H = elecsus.libs.EigenSystem.Hamiltonian(self.element, self.p_dict['Dline'], self.atom.gL, self.p_dict['Bfield'])
-
-
-        # elif (Trans=='D2') and (Isotope=='K41'):
-        #     transition = KD2Transition
-        #     atom_transition = K41_D2
-
-        # self.groundManifold, self.groundEnergies = self.groundStateManifold(atom.gI,atom.I,atom.As,
-        #                         atom_transition.IsotopeShift,Bfield)
-        # self.excitedManifold, self.excitedEnergies = self.excitedStateManifold(gL,atom.gI,atom.I,
-        #                         atom_transition.Ap,atom_transition.Bp,Bfield)
-
-        # arcM, arcV = self.Hamiltonian(5, 0, 1/2, self.p_dict['Bfield']/10000)
-        # eleM = np.array(H.groundManifold)
-        # eleV = H.groundEnergies
-        # arcM = np.array(arcM)
-        # print(eleM.real.round(3))
-        # print(arcM.real.round(3))
-        # print(eleV)
-        # print(arcV)
-        # print(np.allclose(np.abs(eleM), np.abs(arcM)))
-        # print(np.allclose(eleV, arcV))
-        # print(eleM)
-        # print(arcM)
-        # sys.exit()
-
-
 
         Mg = np.array(H.groundManifold)[:,1:]  # Cut off energy eigenvalues
         Me = np.array(H.excitedManifold)[:,1:]
@@ -378,29 +344,13 @@ class atomicSystem:
             DlineIndexOffset = self.n[0]
             self.energySeparation[1] = H.excitedEnergies[self.n[0]:]
 
-        # print(np.array(H.groundManifold).real)
-        # a = np.array(H.excitedManifold)[DlineIndexOffset:DlineIndexOffset+self.n[1], 0].real
-        # b = np.array(H.excitedManifold)[DlineIndexOffset:DlineIndexOffset+self.n[1], 0*self.n[0]+1:1*self.n[0]+1].real
-        # a = a[:,None]
-        # print(np.concatenate([a, b], axis=1))
-        # print(self.p_dict['Pol'])
-        # sys.exit()
-
         self.eigv = np.diag(np.ones(self.total_levels))
-
         dme_r = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 0*self.n[0]:1*self.n[0]].T).real
         dme_z = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 1*self.n[0]:2*self.n[0]].T).real
         print(dme_z)
         dme_l = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 2*self.n[0]:3*self.n[0]].T).real
         dme_squared = np.power(dme_r, 2) + np.power(dme_z, 2) + np.power(dme_l, 2)
         self.Gammas = dme_squared * self.naturalLineWidth[0]
-
-        # E_in_lrz = elecsus.libs.BasisChanger.xyz_to_lrz(self.E_in)
-
-        # E_L = elecsus.libs.BasisChanger.lrz_to_xyz([1,0,0])
-        # E_R = elecsus.libs.BasisChanger.lrz_to_xyz([0,1,0])
-        # E_0 = elecsus.libs.BasisChanger.lrz_to_xyz([0,0,1])
-        # print(np.abs(np.dot(self.E_in, E_L.conj()))**2)
 
         # Calculate the projection of E_in onto the lrz basis
         E_in_lrz = elecsus.libs.BasisChanger.xyz_to_lrz(self.E_in)
@@ -467,23 +417,15 @@ class atomicSystem:
         # If we would put it into the other one, we would get spontaneous excitation
         g_dec[self.slices[1], self.slices[0]] = self.Gammas.T
 
+        # "Decay" of ground and excited states to ground states due to transit time
         # Additional division by two, so that all coherence terms in the Lindblad have correctly 0.5 * Gamma
         g_transit[self.slices[0], self.slices[0]] = 1 / self.transit_time / self.n[0] / 2
-        # "Decay" of excited states to ground states due to transit time
         g_transit[self.slices[1], self.slices[0]] = 1 / self.transit_time / self.n[0] / 2
         if 'symbolic_transit' in self.p_dict:
             g_transit = sy.zeros(self.total_levels, self.total_levels)
             g_transit[self.slices[0], self.slices[0]] = 1 / self.tau_t / self.n[0] / 2 * sy.ones(self.n[0], self.n[0])
-            # "Decay" of excited states to ground states due to transit time
             g_transit[self.slices[1], self.slices[0]] = 1 / self.tau_t / self.n[0] / 2 * sy.ones(self.n[1], self.n[0])
 
-            # g_tmp = sy.zeros(self.total_levels, self.total_levels)
-            # g_tmp[self.slices[0], self.slices[0]] = self.tau_t * sy.ones(self.n[0], self.n[0]) / self.total_levels
-            # g_tmp[self.slices[1], self.slices[0]] = self.tau_t * sy.ones(self.n[1], self.n[0]) / self.total_levels
-            # with open("L_transit_tmp.txt", "w") as outf:
-            #     L_tmp = Lindblad_decay(g_tmp)
-            #     outf.write(latex(L_tmp))
-            # sys.exit()
 
         if 'collisions' not in self.p_dict:
             log.warning('Implicitly assume decaying collisions')
@@ -518,10 +460,6 @@ class atomicSystem:
             mask[self.slices[i+1], self.slices[i]] = True
             self.transition_list2.append(self.matrix2list(mask))
 
-        # m = np.array(self.transition_list2).squeeze()
-        # print(test[m])
-        # print(m.shape)
-        # sys.exit()
         A, b = sy.linear_eq_to_matrix(self.system_matrix, self.r_list)
         # A = A.simplify(rational=None)
         A = se.Matrix(A)
@@ -679,36 +617,6 @@ class atomicSystem:
             P[i] = T[i] * P[i-1]
         T = np.product(T, axis=0)
         return T
-        # detunings, powers, beam_diameter, chi = self.LUT()
-        # chi_real = RectBivariateSpline(detunings, powers, chi.real, kx=1, ky=1)
-        # chi_imag = RectBivariateSpline(detunings, powers, chi.imag, kx=1, ky=1)
-
-        # P0 = P * (beam_diameter / D)#**2
-        # n = self.atom.getNumberDensity(self.T)
-        # k = self.f_resonance / c.c
-        # resolution = 2  # MHz
-        # v = np.arange(w.min()/1e6 - 1000, w.max()/1e6 + 1000, resolution)
-        # v_distribution = self.v_dist(np.subtract.outer(w / k, v))
-        # # Initialize some variables
-        # P = np.zeros((steps+1, len(beams[0].w)))
-        # T = np.ones((steps+1, len(beams[0].w)))
-        # P[0] = P0
-        # abs_pref = dz * 4 * c.pi * self.f_resonance / c.c
-
-        # for i in range(1, steps+1):
-        #     # RectBivariateSpline wants strictly increasing values for x and y.
-        #     # The detuning fulfills this naturally, but power not.
-        #     # So we sort it and later "unsort" it again
-        #     if doppler:
-        #         sequence = np.argsort(P[i-1])
-        #         chi_t = chi_real(k*v, P[i-1][sequence], grid=True) + 1j * chi_imag(k*v, P[i-1][sequence], grid=True)
-        #         chi = np.sum(v_distribution * chi_t.T[sequence.argsort()], axis=1) * resolution
-        #     else:
-        #         chi = chi_real(w, P[i-1], grid=False) + 1j * chi_imag(w, P[i-1], grid=False)
-        #     T[i] = np.exp(abs_pref * np.sqrt(1. + chi * n).imag)
-        #     P[i] = T[i] * P[i-1]
-        # T = np.product(T, axis=0)
-        # return T
 
 
 if __name__ == '__main__':
