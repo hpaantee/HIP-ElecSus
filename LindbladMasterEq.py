@@ -13,11 +13,9 @@ import scipy as sp
 from scipy import constants as c
 from scipy.linalg import eig, eigh
 from scipy.interpolate import RectBivariateSpline
-import seaborn as sns
 import sympy as sy
 from sympy.physics.wigner import wigner_3j, wigner_6j
 import symengine as se
-import tqdm
 
 
 def import_submodules(module):
@@ -148,31 +146,39 @@ def get_spectra(X, E_in, p_dict, outputs=None):
 
 class atomicSystem:
     def __init__(self, element, E_in, p_dict, states=None):
-        self.element = element
         if element.lower() in ['li6', 'lithium6']:
+            self.element = 'Li6'
             self.atom = arc.Lithium6()
         elif element.lower() in ['li7', 'lithium7']:
+            self.element = 'Li7'
             self.atom = arc.Lithium7()
         elif element.lower() in ['na', 'na23', 'sodium', 'sodium23']:
+            self.element = 'Na'
             self.atom = arc.Sodium()
         elif element.lower() in ['k39', 'potassium39']:
+            self.element = 'K39'
             self.atom = arc.Potassium39()
             self.abundance = 1 - (p_dict['K40frac'] + p_dict['K41frac']) / 100
         elif element.lower() in ['k40', 'potassium40']:
+            self.element = 'K40'
             self.atom = arc.Potassium40()
             self.abundance = p_dict['K40frac'] / 100
         elif element.lower() in ['k41', 'potassium41']:
+            self.element = 'K41'
             self.atom = arc.Potassium41()
             self.abundance = p_dict['K41frac'] / 100
         elif element.lower() in ['rb85', 'rubidium85']:
+            self.element = 'Rb85'
             self.atom = arc.Rubidium85()
             self.abundance = p_dict['rb85frac'] / 100
             self.meltingPoint = self.atom.meltingPoint
         elif element.lower() in ['rb87', 'rubidium87']:
+            self.element = 'Rb87'
             self.atom = arc.Rubidium87()
             self.abundance = 1 - p_dict['rb85frac'] / 100
             self.meltingPoint = self.atom.meltingPoint
         elif element.lower() in ['cs', 'cs133', 'caesium', 'caesium133']:
+            self.element = 'Cs'
             self.atom = arc.Caesium()
         else:
             raise ValueError
@@ -195,7 +201,7 @@ class atomicSystem:
             elif (states[1].j - states[1].j) < 1.1:
                 p_dict['Dline'] = 'D2'
             else:
-                raise ValueError('Unsupported Dline')
+                raise ValueError('Unsupported states')
 
         self.n_states = len(self.states)
 
@@ -206,6 +212,7 @@ class atomicSystem:
             self.DoppT = p_dict['DoppTemp'] + 273.15
         self.beam_diameter = p_dict['laserWaist']
         self.E_in = E_in
+        p_dict = {**p_dict_defaults, **p_dict}
         self.p_dict = p_dict
 
         log.debug('Init system properties')
@@ -331,7 +338,6 @@ class atomicSystem:
             for i in range(self.n_states-1)]
 
         H = elecsus.libs.EigenSystem.Hamiltonian(self.element, self.p_dict['Dline'], self.atom.gL, self.p_dict['Bfield'])
-
         Mg = np.array(H.groundManifold)[:,1:]  # Cut off energy eigenvalues
         Me = np.array(H.excitedManifold)[:,1:]
 
@@ -347,7 +353,6 @@ class atomicSystem:
         self.eigv = np.diag(np.ones(self.total_levels))
         dme_r = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 0*self.n[0]:1*self.n[0]].T).real
         dme_z = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 1*self.n[0]:2*self.n[0]].T).real
-        print(dme_z)
         dme_l = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 2*self.n[0]:3*self.n[0]].T).real
         dme_squared = np.power(dme_r, 2) + np.power(dme_z, 2) + np.power(dme_l, 2)
         self.Gammas = dme_squared * self.naturalLineWidth[0]
@@ -428,8 +433,9 @@ class atomicSystem:
 
 
         if 'collisions' not in self.p_dict:
-            log.warning('Implicitly assume decaying collisions')
-            self.p_dict['collisions'] = 'decay'
+            log.info('Implicitly assume dephasing collisions')
+            self.p_dict['collisions'] = 'dephase'
+
         if self.p_dict['collisions'] == 'decay':
             log.info('decaying collisions!')
             # g_col[self.slices[0], self.slices[0]] = self.p_dict['GammaBuf'] / self.n[0]
@@ -620,7 +626,6 @@ class atomicSystem:
 
 
 if __name__ == '__main__':
-    sns.set_palette(sns.color_palette('tab20'))
     p_dict = {
         'Elem':'Rb','Dline':'D2', 'lcell':2e-3, 'T': 20.,
 	   'Bfield': 100, 'rb85frac': 0, 'Constrain': False, 'DoppTemp': -273.1499,
@@ -634,18 +639,35 @@ if __name__ == '__main__':
     E_RCP = elecsus.libs.BasisChanger.lrz_to_xyz([0,1,0])
     E_LP = np.array([1,0,0])
 
-    y_ele1 = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict, outputs=['S0'])[0]
-    y_bwf1 = get_spectra(x, E_in=E_LCP, p_dict=p_dict)
-    y_ele2 = elecsus.elecsus_methods.calculate(x, E_in=E_RCP, p_dict=p_dict, outputs=['S0'])[0]
-    y_bwf2 = get_spectra(x, E_in=E_RCP, p_dict=p_dict)
-    y_ele3 = elecsus.elecsus_methods.calculate(x, E_in=E_LP, p_dict=p_dict, outputs=['S0'])[0]
-    y_bwf3 = get_spectra(x, E_in=E_LP, p_dict=p_dict)
+    # y_ele1 = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict, outputs=['S0'])[0]
+    # y_bwf1 = get_spectra(x, E_in=E_LCP, p_dict=p_dict)
+    # y_ele2 = elecsus.elecsus_methods.calculate(x, E_in=E_RCP, p_dict=p_dict, outputs=['S0'])[0]
+    # y_bwf2 = get_spectra(x, E_in=E_RCP, p_dict=p_dict)
+    # y_ele3 = elecsus.elecsus_methods.calculate(x, E_in=E_LP, p_dict=p_dict, outputs=['S0'])[0]
+    # y_bwf3 = get_spectra(x, E_in=E_LP, p_dict=p_dict)
+
+    # plt.figure()
+    # plt.plot(x, y_ele1)
+    # plt.plot(x, y_bwf1, '--')
+    # plt.plot(x, y_ele2)
+    # plt.plot(x, y_bwf2, '--')
+    # plt.plot(x, y_ele3)
+    # plt.plot(x, y_bwf3, '--')
+
+    # Define relevant atomic parameters
+    beamdiameter = 2e-3  # [m], to define the transit-time broadening
+    p_dict = {'Dline':'D1', 'T': 20., 'Bfield': 100,
+        'K40frac': 0, 'K41frac': 0, 'Constrain': False, 'DoppTemp': -273.1499,
+        'laserWaist': beamdiameter}
+    E_in = np.array([1,0,0])  # linear polarization
+
+    detuning = np.linspace(3800, 4600, 500)  # [MHz]
+    # Define beam properties
+    laserPower = 1e-3  # [Watt]
+    beam = beam(w=detuning, P=laserPower, D=beamdiameter)
+    isotope = atomicSystem('K39', E_in=E_in, p_dict=p_dict)
+    populations, susceptibility = isotope.solve([beam])
 
     plt.figure()
-    plt.plot(x, y_ele1)
-    plt.plot(x, y_bwf1, '--')
-    plt.plot(x, y_ele2)
-    plt.plot(x, y_bwf2, '--')
-    plt.plot(x, y_ele3)
-    plt.plot(x, y_bwf3, '--')
+    plt.plot(detuning, susceptibility.imag)
     plt.show()

@@ -6,20 +6,13 @@ authors = ["Daniel Haeupl <daniel.haeupl@mpl.mpg.de>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-psutil = "^5.9.4"
 numpy = "^1.24.1"
 scipy = "^1.10.0"
 sympy = "^1.11.1"
 ARC-Alkali-Rydberg-Calculator = "^3.2.6"
-tqdm = "^4.64.1"
-pandas = "^1.5.3"
-seaborn = "^0.12.2"
-attrdict3 = "^2.0.2"
-attrdict = "^2.0.1"
 wxPython = "^4.2.0"
-dill = "^0.3.6"
 symengine = "^0.11.0"
-tabulate = "^0.9.0"
+psutil = "^6.0.0"
 
 [tool.poetry.dev-dependencies]
 
