@@ -24,7 +24,7 @@ import_submodules(elecsus)
 
 
 log = logging.getLogger('LME')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.WARNING)
 logging.getLogger('matplotlib.font_manager').disabled = True
 
 
@@ -50,9 +50,9 @@ class beam:
     def __init__(self, **kwargs):
         self.w = kwargs['w']
         if 'profile' in kwargs:
-            self.profile = kwargs['profile']
+            self.profile = kwargs['profile'].lower()
         else:
-            log.warning('Use Gaussian intensity profile')
+            log.info('Use Gaussian intensity profile')
             self.profile = 'gaussian'
         # beam diameter, either as diameter or area
         if 'D' in kwargs:
@@ -623,18 +623,18 @@ class atomicSystem:
 
 
 if __name__ == '__main__':
-    p_dict = {
-        'Elem':'Rb','Dline':'D2', 'lcell':2e-3, 'T': 20.,
-	   'Bfield': 100, 'rb85frac': 0, 'Constrain': False, 'DoppTemp': -273.1499,
-       'laserPower': 1e-15, 'laserWaist': 2e-3}
-    # groundState = state(5, 0, 1/2)
-    # excitedState = state(5, 1, 3/2)
-    # rb85 = atomicSystem('Rb87', p_dict)
-    x = np.linspace(3800, 4600, 500)
-    # od = rb85.transmission([beam(w=x, P=1e-15, D=5e-3)], z=2e-3, doppler=False)
-    E_LCP = elecsus.libs.BasisChanger.lrz_to_xyz([1,0,0])
-    E_RCP = elecsus.libs.BasisChanger.lrz_to_xyz([0,1,0])
-    E_LP = np.array([1,0,0])
+    # p_dict = {
+    #     'Elem':'Rb','Dline':'D2', 'lcell':2e-3, 'T': 20.,
+	#    'Bfield': 100, 'rb85frac': 0, 'Constrain': False, 'DoppTemp': -273.1499,
+    #    'laserPower': 1e-15, 'laserWaist': 2e-3}
+    # # groundState = state(5, 0, 1/2)
+    # # excitedState = state(5, 1, 3/2)
+    # # rb85 = atomicSystem('Rb87', p_dict)
+    # x = np.linspace(3800, 4600, 500)
+    # # od = rb85.transmission([beam(w=x, P=1e-15, D=5e-3)], z=2e-3, doppler=False)
+    # E_LCP = elecsus.libs.BasisChanger.lrz_to_xyz([1,0,0])
+    # E_RCP = elecsus.libs.BasisChanger.lrz_to_xyz([0,1,0])
+    # E_LP = np.array([1,0,0])
 
     # y_ele1 = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict, outputs=['S0'])[0]
     # y_bwf1 = get_spectra(x, E_in=E_LCP, p_dict=p_dict)
@@ -653,18 +653,22 @@ if __name__ == '__main__':
 
     # Define relevant atomic parameters
     beamdiameter = 2e-3  # [m], to define the transit-time broadening
-    p_dict = {'Dline':'D1', 'T': 20., 'Bfield': 100,
+    lcell = 2e-3  # [m]
+    p_dict = {'Elem': 'K', 'Dline':'D1', 'T': 20., 'Bfield': 100, 'lcell':lcell,
         'K40frac': 0, 'K41frac': 0, 'Constrain': False, 'DoppTemp': -273.1499,
         'laserWaist': beamdiameter}
     E_in = np.array([1,0,0])  # linear polarization
 
-    detuning = np.linspace(3800, 4600, 500)  # [MHz]
-    # Define beam properties
-    laserPower = 1e-3  # [Watt]
-    beam = beam(w=detuning, P=laserPower, D=beamdiameter)
+    detuning = np.linspace(-2000, 2500, 1500)  # [MHz]
+    # Define beam properties: detunings, power, diameter and beam profile (flat/gaussian)
+    laserPower = 1e-13  # [Watt]
+    laserbeam = beam(w=detuning, P=laserPower, D=beamdiameter, profile='gaussian')
     isotope = atomicSystem('K39', E_in=E_in, p_dict=p_dict)
-    populations, susceptibility = isotope.solve([beam])
+    populations, susceptibility = isotope.solve([laserbeam])
+    transmission = isotope.transmission([laserbeam], doppler=False, z=lcell)
+    t = elecsus.elecsus_methods.calculate(detuning, E_in=E_in, p_dict=p_dict, outputs=['S0'])[0]
 
     plt.figure()
-    plt.plot(detuning, susceptibility.imag)
+    plt.plot(detuning, transmission)
+    plt.plot(detuning, t)
     plt.show()
