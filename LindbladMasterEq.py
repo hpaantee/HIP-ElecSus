@@ -1,6 +1,4 @@
 import arc
-import copy
-from datetime import datetime
 import elecsus
 import importlib
 import logging
@@ -8,7 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pkgutil
-import sys
 import scipy as sp
 from scipy import constants as c
 from scipy.linalg import eig, eigh
