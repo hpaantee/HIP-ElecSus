@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import time
 import os
-import seaborn as sns
 import scipy as sp
 from datetime import datetime
 from scipy import constants as c
@@ -18,16 +16,90 @@ def import_submodules(module):
 import_submodules(elecsus)
 import LindbladMasterEq as LME
 
-
+plt.rcParams['axes.prop_cycle'] = plt.cycler(color=plt.cm.tab20.colors)
 results_folder = 'LME_plots'
 os.makedirs(results_folder, exist_ok=True)
-sns.set_palette(sns.color_palette('mako'))
 groundState = LME.state(5, 0, 1/2)	 # 5S1/2
 excitedState_D1 = LME.state(5, 1, 1/2)	# 5P1/2
 excitedState_D2 = LME.state(5, 1, 3/2)	# 5P3/2
 E_LCP = elecsus.libs.BasisChanger.lrz_to_xyz(np.array([1,0,0]))
 E_RCP = elecsus.libs.BasisChanger.lrz_to_xyz(np.array([0,1,0]))
 E_LP = np.array([1,0,0])
+
+###############################################################################
+# Test all alkali atoms
+###############################################################################
+def sodium_default():
+	p_dict_D1 = {'Elem': 'Na', 'Dline':'D1', 'lcell':2e-3, 'T': 20., 'laserPower': 1e-15, 'laserWaist': 5e-3}
+	p_dict_D2 = {**p_dict_D1, 'Dline':'D2'}
+	x = np.linspace(-4000, 4000, 2000)
+	[y_elecsus_D1] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict_D1, outputs=['S0'])
+	[y_elecsus_D2] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict_D2, outputs=['S0'])
+	y_bwf_D1 = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict_D1)
+	y_bwf_D2 = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict_D2)
+	plt.figure()
+	plt.plot(x, y_bwf_D1, c='C1', label='LME D1')
+	plt.plot(x, y_elecsus_D1, '--', c='C0', label='ElecSus D1')
+	plt.plot(x, y_bwf_D2, c='C3', label='LME D2')
+	plt.plot(x, y_elecsus_D2, '--', c='C2', label='ElecSus D2')
+	plt.xlabel('Detuning [MHz]')
+	plt.ylabel('Transmission')
+	plt.legend(frameon=False)
+	plt.savefig(f'{results_folder}/sodium.png', dpi=200)
+
+def potassium_default():
+	p_dict_D1 = {'Elem': 'K', 'Dline':'D1', 'lcell':2e-3, 'T': 20., 'laserPower': 1e-15, 'laserWaist': 5e-3}
+	p_dict_D2 = {**p_dict_D1, 'Dline':'D2'}
+	x = np.linspace(-2000, 2000, 1000)
+	[y_elecsus_D1] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict_D1, outputs=['S0'])
+	[y_elecsus_D2] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict_D2, outputs=['S0'])
+	y_bwf_D1 = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict_D1)
+	y_bwf_D2 = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict_D2)
+	plt.figure()
+	plt.plot(x, y_bwf_D1, c='C1', label='LME D1')
+	plt.plot(x, y_elecsus_D1, '--', c='C0', label='ElecSus D1')
+	plt.plot(x, y_bwf_D2, c='C3', label='LME D2')
+	plt.plot(x, y_elecsus_D2, '--', c='C2', label='ElecSus D2')
+	plt.xlabel('Detuning [MHz]')
+	plt.ylabel('Transmission')
+	plt.legend(frameon=False)
+	plt.savefig(f'{results_folder}/potassium.png', dpi=200)
+
+def rubidium_default():
+	p_dict_D1 = {'Elem': 'Rb', 'Dline':'D1', 'lcell':2e-3, 'T': 20., 'laserPower': 1e-15, 'laserWaist': 5e-3}
+	p_dict_D2 = {**p_dict_D1, 'Dline':'D2'}
+	x = np.linspace(-4000, 6000, 2000)
+	[y_elecsus_D1] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict_D1, outputs=['S0'])
+	[y_elecsus_D2] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict_D2, outputs=['S0'])
+	y_bwf_D1 = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict_D1)
+	y_bwf_D2 = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict_D2)
+	plt.figure()
+	plt.plot(x, y_bwf_D1, c='C1', label='LME D1')
+	plt.plot(x, y_elecsus_D1, '--', c='C0', label='ElecSus D1')
+	plt.plot(x, y_bwf_D2, c='C3', label='LME D2')
+	plt.plot(x, y_elecsus_D2, '--', c='C2', label='ElecSus D2')
+	plt.xlabel('Detuning [MHz]')
+	plt.ylabel('Transmission')
+	plt.legend(frameon=False)
+	plt.savefig(f'{results_folder}/rubidium.png', dpi=200)
+
+def caesium_default():
+	p_dict_D1 = {'Elem': 'Cs', 'Dline':'D1', 'lcell':2e-3, 'T': 20., 'laserPower': 1e-15, 'laserWaist': 5e-3}
+	p_dict_D2 = {**p_dict_D1, 'Dline':'D2'}
+	x = np.linspace(-4000, 6000, 1000)
+	[y_elecsus_D1] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict_D1, outputs=['S0'])
+	[y_elecsus_D2] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict_D2, outputs=['S0'])
+	y_bwf_D1 = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict_D1)
+	y_bwf_D2 = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict_D2)
+	plt.figure()
+	plt.plot(x, y_bwf_D1, c='C1', label='LME D1')
+	plt.plot(x, y_elecsus_D1, '--', c='C0', label='ElecSus D1')
+	plt.plot(x, y_bwf_D2, c='C3', label='LME D2')
+	plt.plot(x, y_elecsus_D2, '--', c='C2', label='ElecSus D2')
+	plt.xlabel('Detuning [MHz]')
+	plt.ylabel('Transmission')
+	plt.legend(frameon=False)
+	plt.savefig(f'{results_folder}/caesium.png', dpi=200)
 
 
 ###############################################################################
@@ -204,10 +276,9 @@ def Rb87_D1_LCP_B_0G():
 	plt.savefig(f'{results_folder}/Rb87_D1_LCP_B_0G.png', dpi=200)
 
 def Rb87_D1_LCP_B_100G():
-	p_dict = {'Elem':'Rb','Dline':'D1', 'lcell':2e-3, 'T': 20.,
+	p_dict = {'Elem':'Rb', 'Dline':'D1', 'lcell':2e-3, 'T': 20.,
 	   'Bfield': 100, 'rb85frac': 0, 'Constrain': False, 'DoppTemp': -273.14999,
 	   'laserPower': 1e-15, 'laserWaist': 5e-3}
-	# x = np.linspace(3600, 5000, 500)
 	x = np.linspace(4500, 4750, 1000)
 	[y_elecsus] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict, outputs=['S0'])
 	y_bwf = LME.get_spectra(x, E_in=E_LCP, p_dict=p_dict)
@@ -635,24 +706,13 @@ def Rb87_D2_RCP_B_6000G_high_T_custom_transit_check_velocity_classes():
 	plt.savefig(f'{results_folder}/Convergence_number_velocity_classes.png', dpi=200)
 
 
-def test():
-	p_dict = {'Elem':'Rb','Dline':'D2', 'lcell':2e-3, 'T': 20.,
-	   'Bfield': 100, 'rb85frac': 50, 'Constrain': False, 'DoppTemp': -273.14999,
-	   'laserPower': 1e-15, 'laserWaist': 5e-3}
-	x = np.linspace(-27000, 27000, 50000)
-	[y_elecsus] = elecsus.elecsus_methods.calculate(x, E_in=[0,0,1], p_dict=p_dict, outputs=['S0'])
-	# y_bwf = LME.get_spectra(x, E_in=E_LP, p_dict=p_dict)
-	plt.figure()
-	plt.title('Rb87 D1 LCP B=0G')
-	# plt.plot(x, y_bwf, c='C1', label='LME')
-	plt.plot(x, y_elecsus, '-', c='C4', label='ElecSus')
-	plt.xlabel('Detuning [MHz]')
-	plt.ylabel('Transmission')
-
-
 if __name__ == '__main__':
-
 	np.set_printoptions(linewidth=300)
+	# sodium_default()
+	# potassium_default()
+	# rubidium_default()
+	caesium_default()
+
 	# Rb85_D1_LCP_B_0G()
 	# Rb85_D1_LCP_B_100G()
 	# Rb85_D1_LCP_B_1000G()
@@ -684,5 +744,4 @@ if __name__ == '__main__':
 	# Rb87_D2_RCP_B_6000G_high_T_custom_beam_shape()
 	# Rb87_D2_RCP_B_6000G_high_T_custom_transit_check_velocity_classes()
 
-	# test()
 	plt.show()
