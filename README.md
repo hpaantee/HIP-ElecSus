@@ -1,17 +1,18 @@
-# Alkali at HIgh iNTensities - Ahint
+# Alkalis at HIgh iNTensities - Ahint
 
 A program to calculate the complex-valued susceptibility of hot alkali vapour. Its particular advantage is the simulation of spectra at intensites above saturation. The program allows the calculation of the D1 and D2-line of sodium, potassium, rubidium and caesium, even in the presence of an magnetic field.
 
 ## Prerequisites
 Must have installed a python 3 interpreter installed, with the following packages:
 - ARC-alkali-rydberg-calculator
-- Importlib
-- psutil
+- ElecSus
 - Matplotlib
 - Numpy
 - Scipy
 - Symengine
 - Sympy
+- Importlib
+- psutil
 - Wxpython
 
 ## Usage
@@ -48,4 +49,4 @@ Apache like ElecSus?
 
 ## Change Log
 v 1.0.0
-- Initial release to public
+- Initial release to the public
