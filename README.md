@@ -45,7 +45,7 @@ Note that when directly accessing the `atomicSystem` class, certain dictionary v
 - `atomicSystem` always corresponds to a single isotope with its natural abundance
 
 ## License
-Apache like ElecSus?
+All the files distributed with this program are provided subject to the Apache License, Version 2.0. A Copy of the license is provided.
 
 ## Change Log
 v 1.0.0
