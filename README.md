@@ -4,8 +4,8 @@ A program to calculate the complex-valued susceptibility of hot alkali vapour. I
 
 ## Prerequisites
 Must have installed a python 3 interpreter installed, with the following packages:
-- ARC-alkali-rydberg-calculator
-- ElecSus
+- ARC-alkali-rydberg-calculator 3.6
+- ElecSus 3.0
 - Matplotlib
 - Numpy
 - Scipy
