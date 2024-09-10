@@ -256,60 +256,6 @@ class atomicSystem:
         tau = mean_path / np.abs(mean_speed_2d)
         return tau
 
-    def Hamiltonian(self, n, l, j, B):
-        if B == 0.0:
-            B += 1e-9 # avoid degeneracy problem..?
-        # self.atom.UsedModulesARC.hyperfine = True
-        Ahfs, Bhfs = self.atom.getHFSCoefficients(n, l, j)
-
-        # Bohr Magneton
-        uB = c.physical_constants["Bohr magneton in Hz/T"][0]
-
-        # Define Spin Matrices
-        N = round((2 * j + 1) * (2 * self.atom.I + 1))
-        [jx, jy, jz] = self.atom._spinMatrices(j)
-        ji = np.eye(round(2.0 * j + 1.0))
-        [ix, iy, iz] = self.atom._spinMatrices(self.atom.I)
-        ii = np.eye(round(2.0 * self.atom.I + 1.0))
-
-        # Calculate Tensor Products
-        Jx = np.kron(jx, ii)
-        Jy = np.kron(jy, ii)
-        Jz = np.kron(jz, ii)
-        Ix = np.kron(ji, ix)
-        Iy = np.kron(ji, iy)
-        Iz = np.kron(ji, iz)
-        J2 = Jx**2 + Jy**2 + Jz**2
-        I2 = Ix**2 + Iy**2 + Iz**2
-        IJ = Ix * Jx + Iy * Jy + Iz * Jz
-        # F Basis
-        Fx = Jx + Ix
-        Fy = Jy + Iy
-        Fz = Jz + Iz
-        F2 = Fx**2 + Fy**2 + Fz**2
-
-        # Hyperfine Interaction
-        Hhfs = Ahfs * IJ
-        if Bhfs != 0:
-            Hhfs += (
-                Bhfs
-                * (3 * IJ * IJ + 3 / 2 * IJ - I2 * J2)
-                / (2 * self.atom.I * (2 * self.atom.I - 1) * 2 * j * (2 * j - 1))
-            )
-
-        # Zeeman Interaction
-        Hz = uB * (self.atom.getLandegjExact(l, j) * Jz + self.atom.gI * Iz)
-
-        # ctr = -1
-        # for b in B:
-            # ctr = ctr + 1
-        eVal, eVec = eigh(Hhfs + B * Hz)
-        eVal *= 1e-6
-            # en[ctr, :] = eVal
-        stateManifold = np.append([eVal.real], eVec, axis=0)
-        sortedManifold = sorted(np.transpose(stateManifold),key=(lambda i:i[0]))
-        return sortedManifold, eVal.real
-
     def initSystemProperties(self):
         self.f_resonance = self.atom.getTransitionFrequency(
             *self.states[0]('nlj'), *self.states[1]('nlj'))
@@ -466,7 +412,7 @@ class atomicSystem:
         A, b = sy.linear_eq_to_matrix(self.system_matrix, self.r_list)
         # A = A.simplify(rational=None)
         A = se.Matrix(A)
-        A = se.Lambdify([self.wL, self.Efield], A, real=False, cse=True)
+        A = se.Lambdify([self.wL, self.Efield], A, real=False)
         # b is always just an vector with zeros and the first entry being one
         b = np.zeros((self.total_levels**2, 1))
         b[0] = 1
@@ -515,7 +461,11 @@ class atomicSystem:
         # Solve linear system
         #######################################################################
         log.debug('Solve linear system')
+        # print(w_ge.size)
+        # from datetime import datetime
+        # t0 = datetime.now()
         res = np.array([[np.linalg.solve(self.A(w, E), self.b) for E in E_list[0]] for w in w_ge])
+        # print(datetime.now() - t0)
 
         #######################################################################
         # Extract relevant information
