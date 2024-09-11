@@ -396,21 +396,19 @@ class atomicSystem:
 
     def generate_linear_system(self):
         self.r_list = self.matrix2list(self.r)
-        test = np.array(self.r_list)
         # Create list of off-diagonal elements relevant for i->j transition
-        self.transition_list = []
+        self.transition_list_u = []
         for i in range(self.n_states-1):
             mask = np.full((self.total_levels, self.total_levels), False)
             mask[self.slices[i], self.slices[i+1]] = True
-            self.transition_list.append(self.matrix2list(mask))
-        self.transition_list2 = []
+            self.transition_list_u.append(self.matrix2list(mask))
+        self.transition_list_l = []
         for i in range(self.n_states-1):
             mask = np.full((self.total_levels, self.total_levels), False)
             mask[self.slices[i+1], self.slices[i]] = True
-            self.transition_list2.append(self.matrix2list(mask))
+            self.transition_list_l.append(self.matrix2list(mask))
 
         A, b = sy.linear_eq_to_matrix(self.system_matrix, self.r_list)
-        # A = A.simplify(rational=None)
         A = se.Matrix(A)
         A = se.Lambdify([self.wL, self.Efield], A, real=False)
         # b is always just an vector with zeros and the first entry being one
@@ -461,11 +459,7 @@ class atomicSystem:
         # Solve linear system
         #######################################################################
         log.debug('Solve linear system')
-        # print(w_ge.size)
-        # from datetime import datetime
-        # t0 = datetime.now()
         res = np.array([[np.linalg.solve(self.A(w, E), self.b) for E in E_list[0]] for w in w_ge])
-        # print(datetime.now() - t0)
 
         #######################################################################
         # Extract relevant information
@@ -485,12 +479,9 @@ class atomicSystem:
         # - Complex-valued susceptibility is given by off-axis entries
         #   (only one side, they are complex conjugated anyway)
         state_population = np.array([np.sum(res[self.slices[i]], axis=0).real for i in range(self.n_states)])
-        chi = np.array([self.abundance * 2 * np.sum(res[self.transition_list[i]] * k_alt[i], axis=0)
+        chi = np.array([self.abundance * np.sum(res[self.transition_list_u[i]] * k_alt[i], axis=0)
+                      + self.abundance * np.sum(res[self.transition_list_l[i]].conj() * k_alt[i], axis=0)
             for i in range(self.n_states-1)])
-        # chi = np.array([self.abundance * (
-        #     np.sum(res[self.transition_list[i]] * k_alt[i], axis=0)
-        #     -np.sum(res[self.transition_list2[i]] * k_alt[i], axis=0))
-        #     for i in range(self.n_states-1)])
         return state_population[1].squeeze(), chi[0].squeeze()
 
     def solve_w_doppler(self, beams):
