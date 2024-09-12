@@ -294,9 +294,9 @@ class atomicSystem:
             self.energySeparation[1] = H.excitedEnergies[self.n[0]:]
 
         self.eigv = np.diag(np.ones(self.total_levels))
-        dme_r = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 0*self.n[0]:1*self.n[0]].T).real
+        dme_l = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 0*self.n[0]:1*self.n[0]].T).real
         dme_z = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 1*self.n[0]:2*self.n[0]].T).real
-        dme_l = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 2*self.n[0]:3*self.n[0]].T).real
+        dme_r = np.matmul(Mg, Me[DlineIndexOffset:DlineIndexOffset+self.n[1], 2*self.n[0]:3*self.n[0]].T).real
         dme_squared = np.power(dme_r, 2) + np.power(dme_z, 2) + np.power(dme_l, 2)
         self.Gammas = dme_squared * self.naturalLineWidth[0]
 
