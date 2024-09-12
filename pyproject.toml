@@ -15,6 +15,7 @@ symengine = "^0.11.0"
 psutil = "^6.0.0"
 notebook = "^7.2.2"
 jupyterlab = "^4.2.5"
+tqdm = "^4.66.5"
 
 [tool.poetry.dev-dependencies]
 

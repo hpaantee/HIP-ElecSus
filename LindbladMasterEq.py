@@ -1,6 +1,7 @@
 import arc
 import elecsus
 import importlib
+import itertools
 import logging
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,6 +14,7 @@ from scipy.interpolate import RectBivariateSpline
 import sympy as sy
 from sympy.physics.wigner import wigner_3j, wigner_6j
 import symengine as se
+from tqdm import tqdm
 
 
 def import_submodules(module):
@@ -459,7 +461,8 @@ class atomicSystem:
         # Solve linear system
         #######################################################################
         log.debug('Solve linear system')
-        res = np.array([[np.linalg.solve(self.A(w, E), self.b) for E in E_list[0]] for w in w_ge])
+        iterator = itertools.product(w_ge, E_list[0])
+        res = np.array([np.linalg.solve(self.A(w, E), self.b) for w, E in tqdm(iterator, total=w_ge.size*E_list[0].size)])[:,np.newaxis]
 
         #######################################################################
         # Extract relevant information
