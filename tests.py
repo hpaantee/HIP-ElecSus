@@ -466,20 +466,20 @@ def Rb87_D1_LCP_B_100G_high_T():
 	plt.legend(frameon=False)
 	plt.savefig(f'{results_folder}/Rb87_D1_LCP_B_100G_high_T.png', dpi=200)
 
-def Rb87_D2_RCP_B_6000G_high_T():
+def Rb87_D2_LCP_B_6000G_high_T():
 	from datetime import datetime
 	p_dict = {'Elem':'Rb','Dline':'D2', 'lcell':2e-3, 'T': 64., 'Bfield': 6000, 'rb85frac': 0, 'GammaBuf': 0,
 		   'laserPower': 1e-15, 'laserWaist': 2e-3, 'collisions': 'decay'}#, 'symbolic_transit': True}
 	x = np.linspace(4000, 20000, 2000)
-	[y_elecsus] = elecsus.elecsus_methods.calculate(x, E_in=E_RCP, p_dict=p_dict, outputs=['S0'])
-	y_bwf = LME.get_spectra(x, E_in=E_RCP, p_dict=p_dict)
+	[y_elecsus] = elecsus.elecsus_methods.calculate(x, E_in=E_LCP, p_dict=p_dict, outputs=['S0'])
+	y_bwf = LME.get_spectra(x, E_in=E_LCP, p_dict=p_dict)
 	fig = plt.figure(tight_layout=True)
 	plt.plot(x, y_bwf, c='C1', label=package_name)
 	plt.plot(x, y_elecsus, '--', c='C4', label='ElecSus')
 	plt.xlabel('Detuning [MHz]')
 	plt.ylabel('Transmission')
 	plt.legend(frameon=False)
-	plt.savefig(f'{results_folder}/Rb87_D2_RCP_B_6000G_high_T.png', dpi=200)
+	plt.savefig(f'{results_folder}/Rb87_D2_LCP_B_6000G_high_T.png', dpi=200)
 
 ###############################################################################
 # Collection of other tests
@@ -715,10 +715,17 @@ if __name__ == '__main__':
 
 	# Rb87_D1_LCP_B_100G_power_scan()
 	# Rb87_D1_LCP_B_100G_high_T()
-	# Rb87_D2_RCP_B_6000G_high_T()
+	# Rb87_D2_LCP_B_6000G_high_T()
 
 	# Rb87_D2_RCP_B_6000G_high_T_custom_transit()
 	# Rb87_D2_RCP_B_6000G_high_T_custom_beam_shape()
 	# Rb87_D2_RCP_B_6000G_high_T_custom_transit_check_velocity_classes()
+
+
+	# p_dict = {'Elem':'Cs','Dline':'D2', 'lcell':2e-3, 'T': 20.,
+	#    'Bfield': 100, 'rb85frac': 0, 'K40frac': 0, 'K41frac': 0, 'Constrain': False, 'DoppTemp': -273.14999,
+	#    'laserPower': 1e-15, 'laserWaist': 2e-3}
+	# x = np.linspace(3500, 4500, 1000)
+	# y_bwf = LME.get_spectra(x, E_in=E_LCP, p_dict=p_dict)
 
 	plt.show()
