@@ -306,6 +306,11 @@ class atomicSystem:
         E_in_lrz = elecsus.libs.BasisChanger.xyz_to_lrz(self.E_in)
         polarization_contributions = np.abs(E_in_lrz@np.identity(3))**2
 
+        # We have to change the order, to be compatible with elecsus
+        # print(polarization_contributions)
+        polarization_contributions[0], polarization_contributions[1] = polarization_contributions[1], polarization_contributions[0]
+        # print(polarization_contributions)
+
         self.dme = np.sqrt(polarization_contributions[0]) * dme_l \
                  + np.sqrt(polarization_contributions[1]) * dme_r \
                  + np.sqrt(polarization_contributions[2]) * dme_z

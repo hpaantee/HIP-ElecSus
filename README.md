@@ -1,4 +1,4 @@
-# Alkalis at HIgh iNTensities - Ahint
+# Alkalis at HIgh iNTensities - A hint
 
 A program to calculate the complex-valued susceptibility of hot alkali vapour. Its particular advantage is the simulation of spectra at intensites above saturation. The program allows the calculation of the D1 and D2-line of sodium, potassium, rubidium and caesium, even in the presence of an magnetic field.
 

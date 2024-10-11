@@ -701,7 +701,7 @@ if __name__ == '__main__':
 	# Rb85_D2_RCP_B_100G()
 
 	# Rb87_D1_LCP_B_0G()
-	Rb87_D1_LCP_B_100G()
+	# Rb87_D1_LCP_B_100G()
 	# Rb87_D1_LCP_B_1000G()
 	# Rb87_D1_LCP_B_6000G()
 	# Rb87_D1_RCP_B_0G()
@@ -715,7 +715,7 @@ if __name__ == '__main__':
 
 	# Rb87_D1_LCP_B_100G_power_scan()
 	# Rb87_D1_LCP_B_100G_high_T()
-	# Rb87_D2_LCP_B_6000G_high_T()
+	Rb87_D2_LCP_B_6000G_high_T()
 
 	# Rb87_D2_RCP_B_6000G_high_T_custom_transit()
 	# Rb87_D2_RCP_B_6000G_high_T_custom_beam_shape()
