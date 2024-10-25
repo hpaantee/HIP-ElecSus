@@ -16,7 +16,7 @@ def import_submodules(module):
 import_submodules(elecsus)
 import LindbladMasterEq as LME
 
-package_name = 'Ahint'
+package_name = 'hip_elecsus'
 plt.rcParams['axes.prop_cycle'] = plt.cycler(color=plt.cm.tab20.colors)
 results_folder = 'LME_plots'
 os.makedirs(results_folder, exist_ok=True)
