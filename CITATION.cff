@@ -4,8 +4,27 @@ authors:
 - family-names: "Häupl"
   given-names: "Daniel"
   orcid: "https://orcid.org/0000-0002-2446-4307"
-title: "Ahint"
-version: 1.0.0
-doi: None
-date-released: 2024-08-05
-url: "https://github.com/hpaantee/bwf"
+- family-names: "Higgins"
+  given-names: "Clare R"
+  orcid: "https://orcid.org/0000-0002-9835-8478"
+- family-names: "Pizzey"
+  given-names: "Danielle"
+  orcid: "https://orcid.org/0000-0002-9025-8608"
+- family-names: "Broscoe"
+  given-names: "Jack D"
+  orcid: "https://orcid.org/0000-0002-8878-0528"
+- family-names: "Wrathmall"
+  given-names: "Steven A"
+  orcid: "https://orcid.org/0000-0003-1770-9721"
+- family-names: "Hughes"
+  given-names: "Ifan G"
+  orcid: "https://orcid.org/0000-0001-6322-6435"
+- family-names: "Löw"
+  given-names: "Robert"
+- family-names: "Joly"
+  given-names: "Nicolas Y"
+title: "High Intensity Probe ElecSus"
+version: 1.0.1
+doi: 10.48550/arXiv.2410.19916
+date-released: 2024-10-25
+url: "https://github.com/hpaantee/HIP-ElecSus"

@@ -87,9 +87,19 @@ Currently this software is not able to reproduce all the functionality of ElecSu
 It also only allows computation of the transmission.
 Note that this is not considered a todo list.
 
+## Citation
+
+If you use this software, please cite:
+Daniel R. Häupl, Clare R. Higgins, Danielle Pizzey, Jack D. Briscoe, Steven A. Wrathmall, Ifan G. Hughes, Robert Löw, Nicolas Y. Joly: Modelling spectra of hot alkali vapour in the saturation regime, arXiv:2410.19916 (2024), https://doi.org/10.48550/arXiv.2410.19916
+
+The underlying data are openly available at https://doi.org/10.5281/zenodo.13910109
+
 ## License
 All the files distributed with this program are provided subject to the Apache License, Version 2.0. A Copy of the license is provided.
 
 ## Change Log
+v 1.0.1
+- Added citation and links to paper/zenodo
+
 v 1.0.0
 - Initial release to the public
