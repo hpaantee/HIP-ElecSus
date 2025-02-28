@@ -90,7 +90,7 @@ Note that this is not considered a todo list.
 ## Citation
 
 If you use this software, please cite:
-Daniel R. Häupl, Clare R. Higgins, Danielle Pizzey, Jack D. Briscoe, Steven A. Wrathmall, Ifan G. Hughes, Robert Löw, Nicolas Y. Joly: Modelling spectra of hot alkali vapour in the saturation regime, New Journal Physics 27, 033003 (2025), https://doi.org/10.1088/1367-2630/adb77c
+Daniel R. Häupl, Clare R. Higgins, Danielle Pizzey, Jack D. Briscoe, Steven A. Wrathmall, Ifan G. Hughes, Robert Löw, Nicolas Y. Joly: Modelling spectra of hot alkali vapour in the saturation regime, New Journal of Physics 27, 033003 (2025), https://doi.org/10.1088/1367-2630/adb77c
 
 The underlying data are openly available at https://doi.org/10.5281/zenodo.13910109
 
